@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Key Detection</title>
+    <script
+      type="text/javascript"
+      src="https://www.cornify.com/js/cornify.js"
+    ></script>
+  </head>
+  <body>
+    <script>
+      class KeySequence {
+        constructor() {
+          this.init();
+          this.addListeners();
+        }
+
+        init() {
+          this.secretCode = "maxim";
+          this.keys = [];
+        }
+
+        addListeners() {
+          document.addEventListener("keyup", (ev) => this.keyPressHandler(ev));
+        }
+
+        keyPressHandler(ev) {
+          console.log(ev);
+          if (this.keys.length < 6) {
+            this.keys.push(ev.key);
+          } else {
+            this.keys.shift();
+            this.keys.push(ev.key);
+          }
+          if (this.keys.join("").includes(this.secretCode)) {
+            console.log("Bong");
+            cornify_add();
+          }
+          console.log(this.keys, "\n", ev.key);
+        }
+      }
+
+      const keyboard = new KeySequence();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <form class="search-form">
+      <input type="text" class="search" placeholder="City or State" />
+      <ul class="suggestions">
+        <li>Filter for a city</li>
+        <li>or a state</li>
+      </ul>
+    </form>
+    <script>
+      class CitiesBuilder {
+        constructor() {
+          this.init();
+          this.fetchData();
+          this.destroy();
+        }
+
+        init() {
+          this.cities = [];
+          this.suggestions = document.querySelector(".suggestions");
+          this.input = document.querySelector(".search");
+          this.url =
+            "https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json";
+          this.addListeners();
+        }
+
+        destroy() {
+          this.input.removeEventListener("keyup", (ev) => this.showData(ev));
+        }
+
+        getFilteredData(data, value) {
+          return data.filter(
+            (item) =>
+              item.city.toLowerCase().includes(value.toLowerCase()) ||
+              item.state.toLowerCase().includes(value.toLowerCase())
+          );
+        }
+
+        fetchData() {
+          fetch(this.url)
+            .then((data) => data.json())
+            .then((data) => this.cities.push(...data))
+            .catch((e) => console.error(e));
+        }
+
+        addListeners() {
+          this.input.addEventListener("keyup", (ev) => this.showData(ev));
+        }
+
+        renderItem(data, value) {
+          if (data.length < 1) {
+            return `<li>No info</li>`;
+          }
+
+          return data
+            .map((item) => {
+              const matchedCityName = this.matchInputValue(item.city, value);
+              const matchedStateName = this.matchInputValue(item.state, value);
+              return `<li>
+                <span>${matchedCityName} / ${matchedStateName}</span>
+                <span class="population">${new Intl.NumberFormat().format(
+                  item.population
+                )}</span>
+              </li>`;
+            })
+            .join("");
+        }
+
+        matchInputValue(name, value) {
+          const regexp = new RegExp(value, "\i");
+
+          return name.replace(regexp, `<span class="hl">${value}</span>`);
+        }
+
+        showData(ev) {
+          const inputValue = ev.target.value.trim();
+          const filteredData = this.getFilteredData(this.cities, inputValue);
+
+          this.suggestions.innerHTML = this.renderItem(
+            filteredData,
+            inputValue
+          );
+        }
+      }
+
+      const cities = new CitiesBuilder();
+    </script>
+  </body>
+</html>

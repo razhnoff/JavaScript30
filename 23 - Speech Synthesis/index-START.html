@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Speech Synthesis</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Pacifico"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="voiceinator">
+      <h1>The Voiceinator 5000</h1>
+
+      <select name="voice" id="voices">
+        <option value="">Select A Voice</option>
+      </select>
+
+      <label for="rate">Rate:</label>
+      <input name="rate" type="range" min="0" max="3" value="1" step="0.1" />
+
+      <label for="pitch">Pitch:</label>
+
+      <input name="pitch" type="range" min="0" max="2" step="0.1" />
+      <textarea name="text">Hello! I love JavaScript 👍</textarea>
+      <button id="stop">Stop!</button>
+      <button id="speak">Speak</button>
+    </div>
+
+    <script>
+      class RobotSpeaker {
+        constructor() {
+          this.init();
+          this.addListeners();
+          this.destroy();
+        }
+
+        init() {
+          this.msg = new SpeechSynthesisUtterance();
+          this.voices = [];
+          this.isSpeaking = false;
+
+          this.voicesDropdown = document.querySelector('[name="voice"]');
+          this.options = [
+            ...document.querySelectorAll('[type="range"], [name="text"]'),
+          ];
+          this.speakButton = document.querySelector("#speak");
+          this.stopButton = document.querySelector("#stop");
+
+          this.setTextToRead();
+        }
+
+        addListeners() {
+          speechSynthesis.addEventListener("voiceschanged", () =>
+            this.voicesChangeHandler()
+          );
+          this.voicesDropdown.addEventListener("change", (ev) => {
+            this.selectChangeHandler(ev);
+          });
+          this.speakButton.addEventListener("click", () => this.speak());
+          this.stopButton.addEventListener("click", () => this.stop());
+          this.options.forEach((item) =>
+            item.addEventListener("change", (ev) => this.optionHandler(ev))
+          );
+        }
+
+        optionHandler({ target }) {
+          this.isSpeaking = !this.isSpeaking;
+          if (target.name === "text") {
+            this.setTextToRead(target.value);
+          } else {
+            this.msg[target.name] = Number(target.value);
+          }
+          this.speak();
+        }
+
+        selectChangeHandler({ target }) {
+          this.isSpeaking = !this.isSpeaking;
+          this.setSpeechVoice(target.value);
+          this.speak();
+        }
+
+        speak() {
+          if (this.isSpeaking) {
+            this.stop();
+            this.isSpeaking = !this.isSpeaking;
+            this.speak();
+          } else {
+            speechSynthesis.speak(this.msg);
+          }
+        }
+
+        stop() {
+          speechSynthesis.cancel();
+        }
+
+        renderVoices() {
+          this.voicesDropdown.innerHTML = this.voices
+            .map((item) => {
+              return `<option value="${item.name}">${item.name} (${item.lang})</option>`;
+            })
+            .join("");
+        }
+
+        isEnglishVoices(voice) {
+          return voice.lang === "en-US" || voice.lang === "en-GB";
+        }
+
+        voicesChangeHandler() {
+          this.setSpeechVoices();
+          this.renderVoices();
+        }
+
+        setSpeechVoice(value) {
+          this.msg.voice = this.voices.find((item) => item.name === value);
+        }
+
+        setSpeechVoices() {
+          this.voices = speechSynthesis
+            .getVoices()
+            .filter(this.isEnglishVoices);
+          if (!!this.voices.length) {
+            this.msg.voice = this.voices[0];
+          }
+        }
+
+        setTextToRead(value = this.options[2].value) {
+          this.msg.text = value;
+        }
+
+        destroy() {
+          speechSynthesis.removeEventListener("voiceschanged", () =>
+            this.voicesChangeHandler()
+          );
+          this.voicesDropdown.removeEventListener("change", (ev) => {
+            this.selectChangeHandler(ev);
+          });
+          this.speakButton.removeEventListener("click", () => this.speak());
+          this.stopButton.removeEventListener("click", () => this.stop());
+          this.options.forEach((item) =>
+            item.removeEventListener("change", (ev) => this.optionHandler(ev))
+          );
+        }
+      }
+
+      const speaker = new RobotSpeaker();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HTML5 Canvas</title>
+  </head>
+  <body>
+    <canvas id="draw" width="800" height="800"></canvas>
+    <script>
+      class CanvasPainter {
+        constructor(colorNumber = 0, lineWidth = 100) {
+          this.init(colorNumber, lineWidth);
+          this.addListeners();
+        }
+
+        init(colorNumber, lineWidth) {
+          this.canvas = document.querySelector("canvas");
+          this.canvas.width = window.innerWidth;
+          this.canvas.height = window.innerHeight;
+
+          this.context = this.canvas.getContext("2d");
+          this.context.lineCap = "round";
+          this.context.lineJoin = "round";
+          this.context.lineWidth = lineWidth;
+
+          this.isLineGrowing = false;
+          this.initCoordX = null;
+          this.initCoordY = null;
+          this.isClicked = false;
+          this.color = colorNumber;
+        }
+
+        addListeners() {
+          this.canvas.addEventListener("mousedown", (ev) =>
+            this.initCoords(ev)
+          );
+          this.canvas.addEventListener("mousemove", (ev) => {
+            this.drawLine(ev);
+          });
+          this.canvas.addEventListener(
+            "mouseup",
+            (ev) => (this.isClicked = false)
+          );
+        }
+
+        initCoords({ offsetX, offsetY }) {
+          this.initCoordX = offsetX;
+          this.initCoordY = offsetY;
+          this.isClicked = true;
+        }
+
+        updateColor() {
+          this.context.strokeStyle = `hsl(${this.color}, 100%, 50%)`;
+          this.color++;
+          this.context.stroke();
+        }
+
+        updateLineWidth({ offsetX, offsetY }) {
+          this.initCoordX = offsetX;
+          this.initCoordY = offsetY;
+        }
+
+        drawLine({ offsetX, offsetY }) {
+          if (!this.isClicked) {
+            return;
+          }
+
+          this.context.beginPath();
+          this.context.moveTo(this.initCoordX, this.initCoordY);
+          this.context.lineTo(offsetX, offsetY);
+
+          this.updateColor();
+          this.updateLineWidth({ offsetX, offsetY });
+
+          if (this.color >= 360) {
+            this.color = 0;
+          }
+
+          if (this.context.lineWidth >= 150) {
+            this.isLineGrowing = true;
+          } else if (this.context.lineWidth <= 1) {
+            this.isLineGrowing = false;
+          }
+
+          if (this.isLineGrowing) {
+            this.context.lineWidth--;
+          } else {
+            this.context.lineWidth++;
+          }
+        }
+      }
+
+      const painter = new CanvasPainter();
+    </script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+    </style>
+  </body>
+</html>

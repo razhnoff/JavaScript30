@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Whack A Mole!</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Whack-a-mole! <span class="score">0</span></h1>
+    <button>Start!</button>
+
+    <div class="game">
+      <div class="hole hole1">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole2">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole3">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole4">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole5">
+        <div class="mole"></div>
+      </div>
+      <div class="hole hole6">
+        <div class="mole"></div>
+      </div>
+    </div>
+
+    <script>
+      class MoleKiller {
+        constructor({
+          gameTimeMs: _gameTime = 7000,
+          minMoleActiveMs: _minMoleActive = 300,
+          maxMoleActiveMs: _maxMoleActive = 1200,
+        }) {
+          this.init(_gameTime, _minMoleActive, _maxMoleActive);
+          this.addListeners();
+          this.destroy();
+        }
+        init(_gameTime, _minMoleActive, _maxMoleActive) {
+          this.gameTime = _gameTime;
+          this.minMoleActive = _minMoleActive;
+          this.maxMoleActive = _maxMoleActive;
+          this.holes = [...document.querySelectorAll(".hole")];
+          this.scoreBoard = document.querySelector(".score");
+          this.moles = [...document.querySelectorAll(".mole")];
+          this.btnStart = document.querySelector("button");
+          this.scoreCount = 0;
+          this.lastHoleId = null;
+          this.isGameTimeOver = false;
+          this.isGamePlayingNow = false;
+        }
+
+        addListeners() {
+          this.btnStart.addEventListener("click", () => {
+            this.isGameTimeOver = false;
+            this.startGame();
+          });
+          this.moles.forEach((item) => {
+            item.addEventListener("click", (ev) => this.moleClickHandler(ev));
+          });
+        }
+
+        moleClickHandler({ target }) {
+          target.parentNode.classList.remove("up");
+          this.scoreIncrementHandler();
+          this.renderScore();
+        }
+
+        getRandomHoleId(holes) {
+          const randomId = this.getRandomCount(0, holes.length);
+
+          if (this.lastHoleId === randomId) {
+            return this.getRandomHoleId(this.holes);
+          }
+          this.lastHoleId = randomId;
+          return randomId;
+        }
+
+        getRandomCount(min, max) {
+          return Math.floor(Math.random() * (max - min) + min);
+        }
+
+        startGame() {
+          if (!this.isGameTimeOver) {
+            const randomHoleId = this.getRandomHoleId(this.holes);
+            this.holes[randomHoleId].classList.add("up");
+            const activeMoleTime = this.getRandomCount(
+              this.minMoleActive,
+              this.maxMoleActive
+            );
+
+            setTimeout(() => {
+              this.holes[randomHoleId].classList.remove("up");
+              this.startGame();
+            }, activeMoleTime);
+
+            setTimeout(() => {
+              this.isGameTimeOver = true;
+              console.log(
+                `Game Over! Your score: ${this.scoreCount} \nGame time: ${
+                  this.gameTime / 1000
+                }s`
+              );
+            }, this.gameTime);
+          }
+        }
+
+        scoreIncrementHandler() {
+          this.scoreCount++;
+        }
+
+        renderScore() {
+          this.scoreBoard.innerText = this.scoreCount;
+        }
+
+        destroy() {
+          this.btnStart.removeEventListener("click", () => this.startGame());
+        }
+      }
+
+      // init game config
+      const killer = new MoleKiller({
+        gameTimeMs: 10000,
+        minMoleActiveMs: 300,
+        maxMoleActiveMs: 1500,
+      });
+    </script>
+  </body>
+</html>

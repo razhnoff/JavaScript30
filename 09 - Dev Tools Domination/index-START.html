@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Console Tricks!</title>
+  </head>
+  <body>
+    <p onClick="makeGreen()">×BREAK×DOWN×</p>
+
+    <script>
+      const dogs = [
+        { name: "Snickers", age: 2 },
+        { name: "hugo", age: 8 },
+      ];
+
+      function makeGreen() {
+        const p = document.querySelector("p");
+        p.style.color = "#BADA55";
+        p.style.fontSize = "50px";
+      }
+
+      // Regular
+
+      console.log("log");
+
+      // Interpolated
+
+      // Styled
+
+      console.log("%c Text", "color: green");
+
+      // warning!
+
+      console.warn("Warn");
+
+      // Error :|
+
+      console.error("Error");
+
+      // Info
+
+      console.info("info");
+
+      // Testing
+
+      console.assert(1 / 1 === 2, "assert failed");
+
+      // clearing
+
+      // console.clear();
+
+      // Viewing DOM Elements
+
+      console.dir(p);
+
+      // Grouping together
+
+      dogs.forEach(({ name, age }) => {
+        console.groupCollapsed(name);
+        console.log(`This is ${name}`);
+        console.log(`${name} is ${age} years old`);
+        console.groupEnd();
+      });
+
+      // counting
+
+      console.count("Wes");
+      console.count("Wes");
+      console.count("Steve");
+      console.count("Steve");
+      console.count("Wes");
+      console.count("Steve");
+      console.count("Wes");
+      console.count("Steve");
+      console.count("Steve");
+      console.count("Steve");
+      console.count("Steve");
+      console.count("Steve");
+
+      console.table(dogs);
+      // timing
+
+      console.time();
+      console.timeEnd();
+    </script>
+  </body>
+</html>

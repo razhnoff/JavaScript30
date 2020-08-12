@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mouse Shadow</title>
+  </head>
+  <body>
+    <div class="hero">
+      <h1 contenteditable>🔥WOAH!</h1>
+    </div>
+
+    <style>
+      html {
+        color: black;
+        font-family: sans-serif;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: black;
+      }
+
+      h1 {
+        text-shadow: 10px 10px 0 rgba(0, 0, 0, 1);
+        font-size: 100px;
+      }
+    </style>
+
+    <script>
+      class ShadowCreator {
+        constructor() {
+          this.init();
+          this.addListeners();
+          this.destroy();
+        }
+
+        init() {
+          this.body = document.querySelector(".hero");
+          this.target = document.querySelector("h1");
+          this.colorsConfig = {
+            purple: "rgba(255, 0, 255, 0.7)",
+            cyan: "rgba(0, 255, 255, 0.7)",
+            green: "rgba(0, 255, 0, 0.7)",
+            navy: "rgba(0, 0, 255, 0.7)",
+          };
+        }
+
+        addListeners() {
+          this.body.addEventListener("mousemove", (ev) =>
+            this.mouseMoveHandler(ev)
+          );
+        }
+
+        mouseMoveHandler(ev) {
+          let { offsetX, offsetY } = ev;
+          const radiusRatio = 60;
+          if (this.target !== ev.target) {
+            offsetX -= this.target.offsetLeft;
+            offsetY -= this.target.offsetTop;
+          }
+
+          const xPos = Math.round(
+            (offsetX / this.target.offsetWidth) * radiusRatio * 2 - radiusRatio
+          );
+          const yPos = Math.round(
+            (offsetY / this.target.offsetHeight) * radiusRatio * 2 - radiusRatio
+          );
+
+          this.target.style.textShadow = `
+      ${xPos * -1}px ${yPos}px ${this.colorsConfig["cyan"]},
+      ${xPos}px ${yPos}px ${this.colorsConfig["purple"]},
+      ${yPos * -1}px ${xPos}px ${this.colorsConfig["navy"]},
+      ${yPos}px ${xPos * -1}px ${this.colorsConfig["green"]}`;
+        }
+
+        destroy() {
+          this.body.removeEventListener("mousemove", (ev) =>
+            this.mouseMoveHandler(ev)
+          );
+        }
+      }
+
+      const shadow = new ShadowCreator();
+    </script>
+  </body>
+</html>

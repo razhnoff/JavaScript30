@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Video Speed Scrubber</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <video
+        class="flex"
+        width="765"
+        height="430"
+        src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4"
+        loop
+        controls
+      ></video>
+      <div class="speed">
+        <div class="speed-bar">1×</div>
+      </div>
+    </div>
+
+    <script>
+      class VideoPlayer {
+        constructor(_minSpeed = 0, _maxSpeed = 4) {
+          this.init(_minSpeed, _maxSpeed);
+          this.addListeners();
+          this.destroy();
+        }
+
+        init(_minSpeed, _maxSpeed) {
+          this.minSpeed = _minSpeed;
+          this.maxSpeed = _maxSpeed;
+          this.speedBarRatio = null;
+          this.ratio = null;
+          this.speedNode = document.querySelector(".speed");
+          this.videoPlayerNode = document.querySelector(".flex");
+          this.speedBarNode = document.querySelector(".speed-bar");
+        }
+
+        addListeners() {
+          this.speedNode.addEventListener("mousemove", (ev) =>
+            this.mouseMoveHandler(ev)
+          );
+        }
+
+        mouseMoveHandler(ev) {
+          const height = this.speedNode.offsetHeight;
+          const mousePos = ev.offsetY;
+
+          this.ratio = Number((mousePos / height).toFixed(3));
+          this.speedBarRatio = Number(
+            (
+              this.ratio * (this.maxSpeed - this.minSpeed) +
+              this.minSpeed
+            ).toFixed(2)
+          );
+
+          this.setSpeedBarHeight();
+          this.setSpeedBarText();
+          this.setVideoRate();
+        }
+
+        setSpeedBarHeight() {
+          this.speedBarNode.style.height = `${this.ratio * 100}%`;
+        }
+
+        setSpeedBarText() {
+          this.speedBarNode.innerText = `${this.speedBarRatio}x`;
+        }
+
+        setVideoRate() {
+          this.videoPlayerNode.playbackRate = this.speedBarRatio;
+        }
+
+        destroy() {
+          this.speedNode.removeEventListener("mousemove", (ev) => {
+            this.mouseMoveHandler(ev);
+          });
+        }
+      }
+
+      const videoPlayer = new VideoPlayer(0.45, 3.99);
+    </script>
+  </body>
+</html>
